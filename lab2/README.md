@@ -1,5 +1,3 @@
-# Lab 2
+systemctl start - It runs the service immediately but does not make the service start automatically on reboot.
 
-Instructions for this section will be provided in class and on Blackboard when we reach it.
-
-Put your work for Lab 2 in this folder.
+systemctl enable - It configures the service to start automatically every time the system boots up.
