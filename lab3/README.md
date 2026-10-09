@@ -1,5 +1,8 @@
 # Lab 3
 
-Instructions for this section will be provided in class and on Blackboard when we reach it.
+A real AWS account would use GitHub Actions OIDC instead of stored access keys as OIDC allows GitHub to request short-lived AWS credentials through
+an IAM role without keeping long-term keys in GitHub Secrets. 
 
-Put your work for Lab 3 in this folder.
+This course uses session-scoped secrets because the Academy lab environment restricts IAM role
+and OIDC setup. The credential's limited lifetime and the permissions of the associated role restrict the damage. Although an attacker could
+still use them until they expire or are revoked.
