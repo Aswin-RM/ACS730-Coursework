@@ -32,3 +32,27 @@
 * The dependency setup is three steps that must run on the same runner as the tests, so it is a composite action.
 
 * The image build is a whole job needing `packages: write` that the test job must not have. Hence, it is a reusable workflow.
+
+
+*Build and Run Command
+
+# Build the Docker image
+docker build -t acs730-lab4:local lab4
+
+# Start the container and map port 8000
+docker run -d --name lab4-app -p 8000:8000 acs730-lab4:local
+
+# Check the application health endpoint
+curl http://localhost:8000/healthz
+
+
+The /healthz endpoint returns a healthy status response such as:
+
+{"status":"ok","version":"dev"}
+
+# Experiments
+
+Invert the Dockerfile Layer Order: Moving COPY app.py ./ above the requirements and dependency-installation steps will make a code-only rebuild slower than the original 0.710-second rebuild.
+
+Remove .dockerignore: Temporarily renaming .dockerignore will increase the build context because more repository files will be sent to Docker
+Because the slim Dockerfile uses specific COPY instructions, removing .dockerignore will increase the context without significantly increasing the final image size.
