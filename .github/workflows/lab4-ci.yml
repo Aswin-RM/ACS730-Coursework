@@ -19,15 +19,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - uses: ./.github/actions/python-deps
         with:
           python-version: ${{ matrix.python-version }}
-          cache: pip
-          cache-dependency-path: |
-            lab4/requirements.txt
-            lab4/requirements-dev.txt
-
-      - run: python -m pip install -r lab4/requirements.txt -r lab4/requirements-dev.txt
 
       - working-directory: lab4
         run: python -m pytest
@@ -83,41 +77,40 @@ jobs:
           exit 1
 
 
-  publish:
+  image:
     needs: [test, build]
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    uses: ./.github/workflows/docker-build.yml
+    with:
+      context: lab4
+      image-name: acs730-lab4
+      push: ${{ github.ref == 'refs/heads/main' }}
     permissions:
       contents: read
       packages: write
-    steps:
-      - uses: actions/checkout@v4
-
-      - id: owner
-        run: echo "lc=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
-
-      - uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - env:
-          IMAGE: ghcr.io/${{ steps.owner.outputs.lc }}/acs730-lab4
-        run: |
-          TAG="sha-${GITHUB_SHA::12}"
-          docker build -t "$IMAGE:$TAG" lab4/
-          docker push "$IMAGE:$TAG"
 
 
 
 
   summary:
-    needs: [test, build, smoke]
+    needs: [test, build, smoke, image]
     if: always()
     runs-on: ubuntu-latest
     steps:
-      - run: echo "test ${{ needs.test.result }} build ${{ needs.build.result }} smoke ${{ needs.smoke.result }} tag ${{ needs.build.outputs.image-tag }}" >> "$GITHUB_STEP_SUMMARY"
+      - name: Write workflow summary
+        env:
+          TEST_RESULT: ${{ needs.test.result }}
+          BUILD_RESULT: ${{ needs.build.result }}
+          SMOKE_RESULT: ${{ needs.smoke.result }}
+          IMAGE_RESULT: ${{ needs.image.result }}
+          IMAGE_REF: ${{ needs.image.outputs.image-ref }}
+        run: |
+          {
+            echo "Test: $TEST_RESULT"
+            echo "Build: $BUILD_RESULT"
+            echo "Smoke: $SMOKE_RESULT"
+            echo "Image workflow: $IMAGE_RESULT"
+            echo "Image reference: $IMAGE_REF"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Re-raise an upstream failure
         if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')

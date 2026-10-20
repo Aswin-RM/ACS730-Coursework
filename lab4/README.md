@@ -25,3 +25,10 @@
 ** Pip cache: The logs confirmed successful cache restoration but the measured install step did not become faster, so the timing evidence does not show a performance benefit in these runs.
 
 ** Docker layer cache: The build action decreased from 21 seconds on the cache-miss run to 8 seconds on the cache-hit run, saving 13 seconds and supporting the use of Docker layer caching.
+
+
+
+
+* The dependency setup is three steps that must run on the same runner as the tests, so it is a composite action.
+
+* The image build is a whole job needing `packages: write` that the test job must not have. Hence, it is a reusable workflow.
