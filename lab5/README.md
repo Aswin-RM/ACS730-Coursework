@@ -41,32 +41,15 @@ whether EC2 user data successfully installs and starts Nginx.
 
 ## Experiments
 
-### Experiment 1: Disable the optional artifact bucket
 
-**Prediction:** Setting `create_artifact_bucket=false` would prevent Terraform
-from creating the optional S3 bucket. The plan would contain 9 resources
-instead of 10.
+#Experiment 1: Delete the depends_on.
 
-**Action:** Ran
-`terraform plan -var-file=localstack.tfvars -var='create_artifact_bucket=false'`.
+- Prediction: Removing the explicit depends_on argument should not change the number of resources in the Terraform plan because Terraform can identify dependencies through resource references.
 
-**Result:** Terraform reported 9 to add, 0 to change, and 0 to destroy.
+- Conclusion: Terraform's dependency graph allows the EC2 instance to start before the route table association is ready. This cause problems when the instance tries to access the internet during startup. LocalStack does not fully reproduce real AWS networking behaviour, so this issue is not visible during local testing. Keeping depends_on helps ensure the network association is completed before the instance is created.
 
-**Explanation:** The count condition on the S3 bucket evaluated to zero,
-so Terraform excluded that resource from the plan. The other 9 resources
-remained in the configuration.
+#Experiment 2:  Break only the formatting. 
 
-### Experiment 2: Change the EC2 instance type
+- Prediction: Adding three spaces before a closing brace in network.tf should cause the terraform fmt -check -recursive step to fail. The LocalStack job should not run because it depends on the formatting and validation job.
 
-**Prediction:** Changing the instance type to `t3.small` would select the
-alternative allowed EC2 size.
-
-**Action:** Ran
-`terraform plan -var-file=localstack.tfvars -var='instance_type=t3.small'`.
-
-**Result:** Terraform reported 10 to add, 0 to change, and 0 to destroy.
-
-**Explanation:** The plan included all 10 resources because the previous
-infrastructure had already been destroyed. The alternative instance type
-was accepted by the variable validation. This was a plan-only experiment;
-no resources were created.
+- Conclusion: Formatting checks help catch configuration issues early in the CI pipeline. Running terraform fmt -recursive restores the correct formatting. This prevents unnecessary LocalStack testing when the formatting gate has already failed.
