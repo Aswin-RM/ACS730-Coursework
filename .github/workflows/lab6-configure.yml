@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       apply:
-        description: "Actually create infrastructure (costs money)"
+        description: "Actually apply infrastructure changes"
         type: boolean
         default: false
 
@@ -56,6 +56,12 @@ jobs:
 
       - name: terraform init
         run: terraform init -input=false
+
+      - name: Import existing Lab 6 resources
+        run: |
+          terraform import -input=false aws_security_group.web sg-00911e1f6feaccc37
+          terraform import -input=false 'aws_instance.web[0]' i-019412e63f6e5389c
+          terraform import -input=false 'aws_instance.web[1]' i-0e38a05ddaf811528
 
       - name: terraform plan
         run: terraform plan -input=false
