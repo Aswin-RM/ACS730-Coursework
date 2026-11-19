@@ -1,0 +1,53 @@
+========== LAB 6 CLEANUP AUDIT ==========
+Date: Thu Nov 19 19:50:57 UTC 2026
+
+========== CLEANUP CHECK ==========
+
+== EC2 instances
+   i-052eff95311b5f6df  running  t3.micro  acs730-workstation   (your workstation -- keep this)
+
+== Your AMIs (and their snapshots)
+
+== Unattached EBS volumes
+
+== Snapshots you own
+
+== Non-default security groups
+   sg-06cbb3373d8eb93d4  launch-wizard-1
+      -> aws ec2 delete-security-group --group-id sg-06cbb3373d8eb93d4
+   sg-022f351bc0ad66b41  web server
+      -> aws ec2 delete-security-group --group-id sg-022f351bc0ad66b41
+
+== Terraform state files that still track resources
+
+Review the items above. This script deleted nothing.
+
+
+========== LAB 6 EC2 INSTANCES ==========
+---------------------------------------
+|          DescribeInstances          |
++----------------------+--------------+
+|  i-0f0194dabc2ee9818 |  terminated  |
+|  i-0e38a05ddaf811528 |  terminated  |
+|  i-0414a9faa7f7e175a |  terminated  |
+|  i-019412e63f6e5389c |  terminated  |
++----------------------+--------------+
+
+========== WORKSTATION STATUS ==========
+-------------------------
+|   DescribeInstances   |
++-----------------------+
+|  i-052eff95311b5f6df  |
+|  running              |
+|  54.175.96.169        |
++-----------------------+
+
+========== S3 BUCKET ==========
+
+An error occurred (NoSuchBucket) when calling the ListObjectsV2 operation: The specified bucket does not exist
+
+========== GOLDEN AMI ==========
+
+========== GOLDEN AMI SNAPSHOT ==========
+
+An error occurred (InvalidSnapshot.NotFound) when calling the DescribeSnapshots operation: The snapshot 'snap-0d0ed69bbf970be3c' does not exist.
