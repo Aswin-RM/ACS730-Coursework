@@ -28,7 +28,7 @@ variable "ami_name_prefix" {
 
 variable "playbook_file" {
   type    = string
-  default = "../ansible/site.yml"
+  default = "lab6/ansible/site.yml"
 }
 
 locals {
@@ -76,7 +76,7 @@ build {
   }
 
   provisioner "file" {
-    source      = "files/index.html"
+    source      = "lab6/packer/files/index.html"
     destination = "/tmp/baked.html"
   }
 
