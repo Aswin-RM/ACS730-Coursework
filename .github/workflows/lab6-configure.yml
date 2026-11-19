@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - 'lab6/**'
-      - '.github/workflows/lab6-configure.yml'
+      - '!lab6/evidence/**'
   workflow_dispatch:
     inputs:
       apply:
